@@ -110,8 +110,11 @@ _CONSENT_REJECTION_LABELS = (
     "Refuser et continuer",
     "Je refuse",
     "Refuser",
+    "Refuser les cookies optionnels",
+    "Refuser les cookies facultatifs",
     "Continue without accepting",
     "Reject all",
+    "Reject optional cookies",
     "Decline all",
     "Reject",
 )
