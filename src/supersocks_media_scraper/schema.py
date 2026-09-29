@@ -32,6 +32,10 @@ def empty_metrics() -> dict[str, int | None]:
     return {"likes": None, "comments": None, "shares": None, "views": None}
 
 
+def empty_profile_stats() -> dict[str, int | None]:
+    return {"followers": None, "following": None, "posts": None}
+
+
 def empty_author() -> dict[str, str | None]:
     return {"name": None, "handle": None, "url": None}
 
@@ -71,6 +75,7 @@ def make_result(
     title: str | None = None,
     text: str = "",
     author: Mapping[str, Any] | None = None,
+    profile_stats: Mapping[str, Any] | None = None,
     published_at: str | None = None,
     metrics: Mapping[str, Any] | None = None,
     media: Sequence[Mapping[str, Any]] | None = None,
@@ -97,6 +102,18 @@ def make_result(
                     mets[key] = int(value)
                 except (TypeError, ValueError):
                     mets[key] = None
+
+    stats = empty_profile_stats()
+    if isinstance(profile_stats, Mapping):
+        for key in ("followers", "following", "posts"):
+            value = profile_stats.get(key)
+            if value is None or value == "":
+                stats[key] = None
+            else:
+                try:
+                    stats[key] = int(value)
+                except (TypeError, ValueError):
+                    stats[key] = None
 
     media_out: list[dict[str, Any]] = []
     for item in media or ():
@@ -138,6 +155,7 @@ def make_result(
         "title": title,
         "text": text or "",
         "author": auth,
+        "profile_stats": stats,
         "published_at": published_at,
         "metrics": mets,
         "media": media_out,

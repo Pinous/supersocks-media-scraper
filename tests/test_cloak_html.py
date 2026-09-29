@@ -301,3 +301,58 @@ def test_parse_facebook_comment_dedup_cleanup_and_max() -> None:
     assert "Verified account" not in (result["comments"][1]["text"] or "")
     assert not (result["comments"][1]["text"] or "").endswith("99")
     assert result["comments"][2]["author"] == "Extra One"
+
+def test_parse_instagram_profile_stats_from_og_description() -> None:
+    html = """
+      <html><head>
+      <title>Nat Geo (@natgeo) • Instagram photos and videos</title>
+      <meta property="og:title" content="Nat Geo (@natgeo) • Instagram photos and videos" />
+      <meta property="og:description" content="278M Followers, 137 Following, 28K Posts - See Instagram photos and videos from Nat Geo (@natgeo)" />
+      </head><body><main><p>Nat Geo on Instagram</p></main></body></html>
+    """
+    result = parse_cloak_html(
+        html,
+        platform="instagram",
+        source_url="https://www.instagram.com/natgeo/",
+        fetch_method="cloak",
+    )
+    assert result["content_kind"] == "profile"
+    assert result["profile_stats"] == {
+        "followers": 278_000_000,
+        "following": 137,
+        "posts": 28_000,
+    }
+
+
+def test_parse_instagram_profile_stats_french_og_description() -> None:
+    html = """
+      <html><head>
+      <title>Nat Geo (@natgeo) • Instagram</title>
+      <meta property="og:description" content="278 M d’abonnés, 137 abonnements, 28 k publications - Découvrez les photos et vidéos Instagram de Nat Geo (@natgeo)" />
+      </head><body></body></html>
+    """
+    result = parse_cloak_html(
+        html,
+        platform="instagram",
+        source_url="https://www.instagram.com/natgeo/",
+        fetch_method="cloak",
+    )
+    assert result["profile_stats"]["followers"] == 278_000_000
+    assert result["profile_stats"]["following"] == 137
+    assert result["profile_stats"]["posts"] == 28_000
+
+
+def test_instagram_post_does_not_emit_profile_stats() -> None:
+    html = _load("instagram_post.html")
+    result = parse_cloak_html(
+        html,
+        platform="instagram",
+        source_url="https://www.instagram.com/p/EXAMPLE/",
+        fetch_method="cloak",
+    )
+    assert result["content_kind"] == "post"
+    assert result["profile_stats"] == {
+        "followers": None,
+        "following": None,
+        "posts": None,
+    }

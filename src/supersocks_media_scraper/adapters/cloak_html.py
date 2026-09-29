@@ -789,6 +789,33 @@ def _extract_metrics(
     return out
 
 
+_IG_PROFILE_STAT_PATTERNS = {
+    "followers": re.compile(
+        r"(\d[\d,.\s ]*[kKmM]?)\s*(?:followers|d?['’]?\s*abonnés)", re.I
+    ),
+    "following": re.compile(
+        r"(\d[\d,.\s ]*[kKmM]?)\s*(?:following|abonnements)", re.I
+    ),
+    "posts": re.compile(
+        r"(\d[\d,.\s ]*[kKmM]?)\s*(?:posts|publications)", re.I
+    ),
+}
+
+
+def _extract_profile_stats(
+    platform: str,
+    og_description: str,
+) -> dict[str, int | None]:
+    out: dict[str, int | None] = {"followers": None, "following": None, "posts": None}
+    if platform != "instagram" or not og_description:
+        return out
+    for key, pattern in _IG_PROFILE_STAT_PATTERNS.items():
+        match = pattern.search(og_description)
+        if match:
+            out[key] = _parse_count(match.group(1))
+    return out
+
+
 def _extract_media(markup: str) -> list[dict[str, Any]]:
     media: list[dict[str, Any]] = []
     alt = None
@@ -1089,6 +1116,11 @@ def parse_cloak_html(
     )
     useful = len(text) >= MIN_USEFUL_CHARS or bool(title and media)
     content_kind = infer_content_kind(final_url or source_url, platform)
+    profile_stats = (
+        _extract_profile_stats(platform, description or "")
+        if content_kind == "profile"
+        else None
+    )
 
     action = None
     if gate:
@@ -1122,6 +1154,7 @@ def parse_cloak_html(
         title=title,
         text=text,
         author=author,
+        profile_stats=profile_stats,
         published_at=published_at,
         metrics=metrics,
         media=media,
