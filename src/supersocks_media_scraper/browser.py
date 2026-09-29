@@ -136,9 +136,14 @@ def _looks_like_consent_wall(text: str) -> bool:
         return True
     marker_groups = (
         ("nous utilisons des cookies", "personnaliser", "accepter"),
+        ("nous utilisons les cookies", "autoriser tous les cookies"),
+        ("nous utilisons les cookies", "refuser les cookies"),
         ("utilisation de cookies", "personnaliser", "refuser"),
+        ("autoriser l'utilisation des cookies", "refuser"),
         ("we use cookies", "customize", "accept"),
         ("we use cookies", "manage preferences", "reject"),
+        ("allow the use of cookies", "reject"),
+        ("allow the use of cookies", "decline"),
     )
     return any(all(marker in normalized for marker in group) for group in marker_groups)
 

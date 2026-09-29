@@ -171,3 +171,16 @@ def test_needs_human_gate_still_preserved() -> None:
     assert result["action_required"] is not None
     assert result["action_required"]["code"] == "needs-human"
     assert result["action_required"]["reason"] == "login"
+
+
+def test_instagram_meta_gdpr_wall_is_detected() -> None:
+    from supersocks_media_scraper.browser import _looks_like_consent_wall
+
+    wall = (
+        "Autoriser l'utilisation des cookies d'Instagram sur ce navigateur ? "
+        "Nous utilisons les cookies et des technologies similaires pour "
+        "personnaliser le contenu. Autoriser tous les cookies "
+        "Refuser les cookies optionnels"
+    )
+    assert _looks_like_consent_wall(wall) is True
+    assert _looks_like_consent_wall("Page de profil classique") is False
