@@ -794,7 +794,7 @@ _IG_PROFILE_STAT_PATTERNS = {
         r"(\d[\d,.\s ]*[kKmM]?)\s*(?:followers|d?['’]?\s*abonnés)", re.I
     ),
     "following": re.compile(
-        r"(\d[\d,.\s ]*[kKmM]?)\s*(?:following|abonnements)", re.I
+        r"(\d[\d,.\s ]*[kKmM]?)\s*(?:following|abonnements|suivis)", re.I
     ),
     "posts": re.compile(
         r"(\d[\d,.\s ]*[kKmM]?)\s*(?:posts|publications)", re.I
